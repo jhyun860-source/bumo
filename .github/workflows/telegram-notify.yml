@@ -34,9 +34,8 @@ jobs:
         run: |
           set -e
           TITLE=$(basename "$FOLDER")
-          MSG="[부모대화] 오늘의 카루셀 — ${TITLE}
-
-$(cat "$FOLDER/script.md")"
+          BODY=$(cat "$FOLDER/script.md")
+          MSG="[부모대화] 오늘의 카루셀 — ${TITLE}"$'\n\n'"${BODY}"
           MSG="${MSG:0:3900}"
 
           curl -s -X POST "https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/sendMessage" \
