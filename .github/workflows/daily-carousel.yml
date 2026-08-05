@@ -67,9 +67,10 @@ jobs:
           MSG="[부모대화] 오늘의 카루셀 — ${TITLE}"$'\n\n'"${BODY}"
           MSG="${MSG:0:3900}"
 
-          curl -s -X POST "https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/sendMessage" \
-            --data-urlencode "chat_id=${TELEGRAM_CHAT_ID}" \
-            --data-urlencode "text=${MSG}" > /dev/null
+          # 캡션(### 캡션 아래)만 따로 뽑아서 복사-붙여넣기 하기 좋게 별도 메시지로 보냄
+          CAPTION=$(awk '/^### 캡션/{flag=1; next} flag' "$FOLDER/script.md")
+          CAPTION_MSG="📋 스레드/인스타 캡션 (그대로 복사해서 쓰세요)"$'\n\n'"${CAPTION}"
+          CAPTION_MSG="${CAPTION_MSG:0:3900}"
 
           MEDIA_JSON="["
           FORM_ARGS=()
@@ -88,5 +89,13 @@ jobs:
             -F "chat_id=${TELEGRAM_CHAT_ID}" \
             -F "media=${MEDIA_JSON}" \
             "${FORM_ARGS[@]}" > /dev/null
+
+          curl -s -X POST "https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/sendMessage" \
+            --data-urlencode "chat_id=${TELEGRAM_CHAT_ID}" \
+            --data-urlencode "text=${MSG}" > /dev/null
+
+          curl -s -X POST "https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/sendMessage" \
+            --data-urlencode "chat_id=${TELEGRAM_CHAT_ID}" \
+            --data-urlencode "text=${CAPTION_MSG}" > /dev/null
 
           echo "Sent $FOLDER to Telegram"
