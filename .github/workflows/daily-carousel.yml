@@ -1,0 +1,92 @@
+name: Daily Carousel
+
+on:
+  schedule:
+    - cron: '0 2 * * *'
+  workflow_dispatch: {}
+
+permissions:
+  contents: write
+
+jobs:
+  build-and-notify:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Install fonts and Pillow
+        run: |
+          sudo apt-get update -y
+          sudo apt-get install -y fonts-nanum
+          pip install --quiet Pillow
+
+      - name: Render carousel
+        id: render
+        run: |
+          python3 scripts/render_carousel.py | tee render_output.txt
+          if grep -q '^NO_TOPIC$' render_output.txt; then
+            echo "no_topic=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "no_topic=false" >> "$GITHUB_OUTPUT"
+            TOPIC_DIR=$(grep '^TOPIC_DIR=' render_output.txt | cut -d= -f2-)
+            TOPIC_TITLE=$(grep '^TOPIC_TITLE=' render_output.txt | cut -d= -f2-)
+            echo "topic_dir=$TOPIC_DIR" >> "$GITHUB_OUTPUT"
+            echo "topic_title=$TOPIC_TITLE" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Commit and push
+        if: steps.render.outputs.no_topic != 'true'
+        run: |
+          git config user.name "carousel-bot"
+          git config user.email "actions@users.noreply.github.com"
+          git add -A
+          git commit -m "Render carousel: ${{ steps.render.outputs.topic_dir }}"
+          git push
+
+      - name: Notify Telegram (no topic left)
+        if: steps.render.outputs.no_topic == 'true'
+        env:
+          TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+          TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
+        run: |
+          curl -s -X POST "https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/sendMessage" \
+            --data-urlencode "chat_id=${TELEGRAM_CHAT_ID}" \
+            --data-urlencode "text=[부모대화] 오늘은 새로 만들 주제가 없어요. 다음 달 캘린더를 추가해주세요." > /dev/null
+
+      - name: Send to Telegram
+        if: steps.render.outputs.no_topic != 'true'
+        env:
+          TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+          TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
+          FOLDER: ${{ steps.render.outputs.topic_dir }}
+          TITLE: ${{ steps.render.outputs.topic_title }}
+        run: |
+          set -e
+          BODY=$(cat "$FOLDER/script.md")
+          MSG="[부모대화] 오늘의 카루셀 — ${TITLE}"$'\n\n'"${BODY}"
+          MSG="${MSG:0:3900}"
+
+          curl -s -X POST "https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/sendMessage" \
+            --data-urlencode "chat_id=${TELEGRAM_CHAT_ID}" \
+            --data-urlencode "text=${MSG}" > /dev/null
+
+          MEDIA_JSON="["
+          FORM_ARGS=()
+          i=0
+          for f in "$FOLDER"/*.png; do
+            [ -e "$f" ] || continue
+            name=$(basename "$f")
+            if [ $i -gt 0 ]; then MEDIA_JSON+=","; fi
+            MEDIA_JSON+="{\"type\":\"photo\",\"media\":\"attach://$name\"}"
+            FORM_ARGS+=(-F "$name=@$f")
+            i=$((i+1))
+          done
+          MEDIA_JSON+="]"
+
+          curl -s -X POST "https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/sendMediaGroup" \
+            -F "chat_id=${TELEGRAM_CHAT_ID}" \
+            -F "media=${MEDIA_JSON}" \
+            "${FORM_ARGS[@]}" > /dev/null
+
+          echo "Sent $FOLDER to Telegram"
