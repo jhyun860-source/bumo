@@ -15,16 +15,16 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Install fonts and Pillow
+      - name: Install fonts and puppeteer (bundles its own Chrome)
         run: |
           sudo apt-get update -y
           sudo apt-get install -y fonts-nanum
-          pip install --quiet Pillow
+          npm install --no-save --no-package-lock puppeteer
 
       - name: Render carousel
         id: render
         run: |
-          python3 scripts/render_carousel.py | tee render_output.txt
+          node scripts/render_carousel.js | tee render_output.txt
           if grep -q '^NO_TOPIC$' render_output.txt; then
             echo "no_topic=true" >> "$GITHUB_OUTPUT"
           else
