@@ -77,12 +77,13 @@ async function generateCoverPhoto(prompt) {
   while (Date.now() < deadline) {
     await sleep(4000);
     const result = await topviewFetch(`/v1/common_task/text2image/task/query?taskId=${submit.taskId}`);
-    if (result.status === 'success') {
-      const image = (result.images || []).find((img) => img.status === 'success');
-      if (!image) throw new Error('task succeeded but no image returned');
+    const status = (result.status || '').toLowerCase();
+    if (status === 'success') {
+      const image = (result.images || []).find((img) => img.filePath);
+      if (!image) throw new Error(`task succeeded but no image returned: ${JSON.stringify(result.images)}`);
       return image.filePath;
     }
-    if (result.status === 'fail') throw new Error(result.errorMsg || 'task failed');
+    if (status === 'fail') throw new Error(result.errorMsg || `task failed: ${JSON.stringify(result)}`);
   }
   throw new Error('timed out waiting for image generation');
 }
