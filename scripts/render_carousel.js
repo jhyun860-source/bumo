@@ -135,37 +135,114 @@ function getCategory(topicDir) {
 
 const ICON_SVGS = {
   chatbot: `
-<svg width="380" height="380" viewBox="0 0 200 200" fill="none" xmlns="http://www.w3.org/2000/svg">
-  <rect x="28" y="46" width="144" height="94" rx="24" stroke="#F7F3EC" stroke-width="6" fill="rgba(247,243,236,0.10)"/>
-  <path d="M68 140 L68 166 L98 140 Z" fill="rgba(247,243,236,0.10)" stroke="#F7F3EC" stroke-width="6" stroke-linejoin="round"/>
-  <circle cx="70" cy="92" r="8" fill="#F7F3EC"/>
-  <circle cx="100" cy="92" r="8" fill="#F7F3EC"/>
-  <circle cx="130" cy="92" r="8" fill="#F7F3EC"/>
-  <path d="M158 26 L164 40 L178 46 L164 52 L158 66 L152 52 L138 46 L152 40 Z" fill="#C47A5D"/>
+<svg width="620" height="620" viewBox="0 0 300 300" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <radialGradient id="glow-chatbot" cx="50%" cy="42%" r="55%">
+      <stop offset="0%" stop-color="#C47A5D" stop-opacity="0.5"/>
+      <stop offset="100%" stop-color="#C47A5D" stop-opacity="0"/>
+    </radialGradient>
+    <linearGradient id="body-chatbot" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#7A9683"/>
+      <stop offset="100%" stop-color="#334A3D"/>
+    </linearGradient>
+  </defs>
+  <ellipse cx="150" cy="145" rx="145" ry="145" fill="url(#glow-chatbot)"/>
+  <ellipse cx="150" cy="246" rx="78" ry="13" fill="#16211A" opacity="0.35"/>
+  <g transform="rotate(-5 150 90)">
+    <rect x="196" y="40" width="66" height="48" rx="16" fill="#F7F3EC" opacity="0.92"/>
+    <path d="M210 88 L206 102 L226 88 Z" fill="#F7F3EC" opacity="0.92"/>
+    <circle cx="214" cy="63" r="4" fill="#3A5244"/>
+    <circle cx="229" cy="63" r="4" fill="#3A5244"/>
+    <circle cx="244" cy="63" r="4" fill="#3A5244"/>
+  </g>
+  <g transform="rotate(-4 150 140)">
+    <rect x="52" y="68" width="196" height="132" rx="30" fill="url(#body-chatbot)" stroke="#F7F3EC" stroke-width="4"/>
+    <path d="M92 200 L92 228 L124 200 Z" fill="url(#body-chatbot)" stroke="#F7F3EC" stroke-width="4" stroke-linejoin="round"/>
+    <circle cx="100" cy="134" r="9" fill="#F7F3EC"/>
+    <circle cx="132" cy="134" r="9" fill="#F7F3EC"/>
+    <circle cx="164" cy="134" r="9" fill="#F7F3EC"/>
+  </g>
+  <path d="M242 24 L249 42 L267 49 L249 56 L242 74 L235 56 L217 49 L235 42 Z" fill="#C47A5D"/>
+  <circle cx="52" cy="46" r="7" fill="#C47A5D" opacity="0.85"/>
+  <circle cx="34" cy="76" r="4.5" fill="#F7F3EC" opacity="0.55"/>
 </svg>`,
   youtube: `
-<svg width="380" height="380" viewBox="0 0 200 200" fill="none" xmlns="http://www.w3.org/2000/svg">
-  <rect x="22" y="42" width="156" height="108" rx="18" stroke="#F7F3EC" stroke-width="6" fill="rgba(247,243,236,0.10)"/>
-  <path d="M86 70 L86 122 L128 96 Z" fill="#C47A5D"/>
-  <rect x="66" y="164" width="68" height="9" rx="4.5" fill="#F7F3EC" opacity="0.7"/>
+<svg width="620" height="620" viewBox="0 0 300 300" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <radialGradient id="glow-youtube" cx="50%" cy="42%" r="55%">
+      <stop offset="0%" stop-color="#C47A5D" stop-opacity="0.5"/>
+      <stop offset="100%" stop-color="#C47A5D" stop-opacity="0"/>
+    </radialGradient>
+    <linearGradient id="body-youtube" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#7A9683"/>
+      <stop offset="100%" stop-color="#334A3D"/>
+    </linearGradient>
+    <radialGradient id="btn-youtube" cx="35%" cy="35%" r="70%">
+      <stop offset="0%" stop-color="#D89676"/>
+      <stop offset="100%" stop-color="#B5674A"/>
+    </radialGradient>
+  </defs>
+  <ellipse cx="150" cy="145" rx="145" ry="145" fill="url(#glow-youtube)"/>
+  <ellipse cx="150" cy="246" rx="86" ry="13" fill="#16211A" opacity="0.35"/>
+  <rect x="46" y="58" width="208" height="148" rx="24" fill="url(#body-youtube)" stroke="#F7F3EC" stroke-width="4"/>
+  <rect x="46" y="58" width="208" height="148" rx="24" fill="none" stroke="#F7F3EC" stroke-opacity="0.2" stroke-width="1"/>
+  <rect x="128" y="220" width="44" height="10" rx="5" fill="#6E8074"/>
+  <rect x="102" y="238" width="96" height="8" rx="4" fill="#F7F3EC" opacity="0.7"/>
+  <circle cx="150" cy="132" r="52" fill="url(#btn-youtube)"/>
+  <path d="M136 108 L136 156 L178 132 Z" fill="#F7F3EC"/>
+  <circle cx="232" cy="40" r="6" fill="#F7F3EC" opacity="0.7"/>
+  <circle cx="252" cy="60" r="4" fill="#F7F3EC" opacity="0.5"/>
 </svg>`,
   game: `
-<svg width="380" height="380" viewBox="0 0 200 200" fill="none" xmlns="http://www.w3.org/2000/svg">
-  <path d="M52 92 Q52 66 82 66 L118 66 Q148 66 148 92 L154 132 Q157 152 139 152 Q126 152 120 140 L117 132 Q113 123 100 123 Q87 123 83 132 L80 140 Q74 152 61 152 Q43 152 46 132 Z"
-    stroke="#F7F3EC" stroke-width="6" fill="rgba(247,243,236,0.10)" stroke-linejoin="round"/>
-  <line x1="71" y1="94" x2="71" y2="114" stroke="#F7F3EC" stroke-width="6" stroke-linecap="round"/>
-  <line x1="61" y1="104" x2="81" y2="104" stroke="#F7F3EC" stroke-width="6" stroke-linecap="round"/>
-  <circle cx="127" cy="96" r="6" fill="#F7F3EC"/>
-  <circle cx="143" cy="110" r="6" fill="#F7F3EC"/>
-  <circle cx="160" cy="42" r="24" fill="#C47A5D"/>
-  <text x="160" y="51" font-size="26" font-weight="700" fill="#F7F3EC" text-anchor="middle" font-family="Brand, sans-serif">?</text>
+<svg width="620" height="620" viewBox="0 0 300 300" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <radialGradient id="glow-game" cx="50%" cy="42%" r="55%">
+      <stop offset="0%" stop-color="#C47A5D" stop-opacity="0.5"/>
+      <stop offset="100%" stop-color="#C47A5D" stop-opacity="0"/>
+    </radialGradient>
+    <linearGradient id="body-game" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#7A9683"/>
+      <stop offset="100%" stop-color="#334A3D"/>
+    </linearGradient>
+  </defs>
+  <ellipse cx="150" cy="145" rx="145" ry="145" fill="url(#glow-game)"/>
+  <ellipse cx="150" cy="246" rx="90" ry="13" fill="#16211A" opacity="0.35"/>
+  <path d="M78 138 Q78 100 118 100 L182 100 Q222 100 222 138 L231 196 Q235 224 209 224 Q190 224 181 206 L176 194 Q170 181 150 181 Q130 181 124 194 L119 206 Q110 224 91 224 Q65 224 69 196 Z"
+    fill="url(#body-game)" stroke="#F7F3EC" stroke-width="4" stroke-linejoin="round"/>
+  <line x1="107" y1="140" x2="107" y2="172" stroke="#F7F3EC" stroke-width="8" stroke-linecap="round"/>
+  <line x1="91" y1="156" x2="123" y2="156" stroke="#F7F3EC" stroke-width="8" stroke-linecap="round"/>
+  <circle cx="190" cy="144" r="9" fill="#F7F3EC"/>
+  <circle cx="216" cy="164" r="9" fill="#F7F3EC"/>
+  <circle cx="236" cy="52" r="34" fill="#C47A5D"/>
+  <text x="236" y="64" font-size="36" font-weight="700" fill="#F7F3EC" text-anchor="middle" font-family="Brand, sans-serif">?</text>
+  <circle cx="52" cy="70" r="6" fill="#F7F3EC" opacity="0.5"/>
+  <circle cx="42" cy="100" r="4" fill="#F7F3EC" opacity="0.4"/>
 </svg>`,
   sns: `
-<svg width="380" height="380" viewBox="0 0 200 200" fill="none" xmlns="http://www.w3.org/2000/svg">
-  <rect x="34" y="34" width="132" height="132" rx="20" stroke="#F7F3EC" stroke-width="6" fill="rgba(247,243,236,0.10)"/>
-  <circle cx="70" cy="72" r="12" fill="#F7F3EC"/>
-  <path d="M44 146 L86 100 L112 126 L136 96 L156 146 Z" fill="#F7F3EC" opacity="0.5"/>
-  <path d="M160 54 C160 44 150 39 145 47 C140 39 130 44 130 54 C130 67 145 77 145 77 C145 77 160 67 160 54 Z" fill="#C47A5D"/>
+<svg width="620" height="620" viewBox="0 0 300 300" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <radialGradient id="glow-sns" cx="50%" cy="42%" r="55%">
+      <stop offset="0%" stop-color="#C47A5D" stop-opacity="0.5"/>
+      <stop offset="100%" stop-color="#C47A5D" stop-opacity="0"/>
+    </radialGradient>
+    <linearGradient id="body-sns" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#7A9683"/>
+      <stop offset="100%" stop-color="#334A3D"/>
+    </linearGradient>
+  </defs>
+  <ellipse cx="150" cy="145" rx="145" ry="145" fill="url(#glow-sns)"/>
+  <ellipse cx="150" cy="246" rx="80" ry="13" fill="#16211A" opacity="0.35"/>
+  <g transform="rotate(7 150 140) translate(14 10)">
+    <rect x="66" y="62" width="150" height="150" rx="22" fill="url(#body-sns)" stroke="#F7F3EC" stroke-width="4" opacity="0.55"/>
+  </g>
+  <g transform="rotate(-4 150 140)">
+    <rect x="62" y="58" width="150" height="150" rx="22" fill="url(#body-sns)" stroke="#F7F3EC" stroke-width="4"/>
+    <circle cx="98" cy="98" r="14" fill="#F7F3EC"/>
+    <path d="M76 178 L124 128 L154 158 L184 122 L212 178 Z" fill="#F7F3EC" opacity="0.55"/>
+  </g>
+  <circle cx="226" cy="70" r="36" fill="#C47A5D"/>
+  <path transform="translate(205.6 49.3) scale(1.7)" d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z" fill="#F7F3EC"/>
+  <circle cx="46" cy="90" r="6" fill="#F7F3EC" opacity="0.5"/>
 </svg>`,
 };
 
@@ -253,7 +330,7 @@ function buildHtml(slides, coverPhotoPath, topicDir) {
   /* 표지(사진 없을 때): 브랜드톤 그라디언트 + 그레인으로 만든 자체 제작 무드 배경 */
   .slide.artcover { color: #FFFFFF; }
   .grain { position: absolute; inset: 0; opacity: 0.05; mix-blend-mode: overlay; background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2' stitchTiles='stitch'/></filter><rect width='100%25' height='100%25' filter='url(%23n)'/></svg>"); }
-  .art-illustration { position: absolute; top: 210px; left: 0; right: 0; display: flex; justify-content: center; z-index: 2; filter: drop-shadow(0 10px 24px rgba(0,0,0,0.28)); }
+  .art-illustration { position: absolute; top: 90px; left: 0; right: 0; display: flex; justify-content: center; z-index: 2; filter: drop-shadow(0 14px 28px rgba(0,0,0,0.3)); }
 </style>
 </head>
 <body>
