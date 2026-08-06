@@ -123,6 +123,52 @@ function buildArtCoverStyle(topicDir) {
     linear-gradient(160deg, #4a6b52 0%, #3A5244 55%, #1E2B23 100%)`;
 }
 
+// 주제 폴더 번호로 4개 주차 카테고리(챗봇/유튜브/게임/SNS)를 판별해
+// 해당 카테고리를 상징하는 자체 제작 플랫 SVG 일러스트를 표지에 얹는다.
+function getCategory(topicDir) {
+  const num = parseInt(topicDir.slice(0, 2), 10);
+  if (num <= 5) return 'chatbot';
+  if (num <= 10) return 'youtube';
+  if (num <= 15) return 'game';
+  return 'sns';
+}
+
+const ICON_SVGS = {
+  chatbot: `
+<svg width="380" height="380" viewBox="0 0 200 200" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <rect x="28" y="46" width="144" height="94" rx="24" stroke="#F7F3EC" stroke-width="6" fill="rgba(247,243,236,0.10)"/>
+  <path d="M68 140 L68 166 L98 140 Z" fill="rgba(247,243,236,0.10)" stroke="#F7F3EC" stroke-width="6" stroke-linejoin="round"/>
+  <circle cx="70" cy="92" r="8" fill="#F7F3EC"/>
+  <circle cx="100" cy="92" r="8" fill="#F7F3EC"/>
+  <circle cx="130" cy="92" r="8" fill="#F7F3EC"/>
+  <path d="M158 26 L164 40 L178 46 L164 52 L158 66 L152 52 L138 46 L152 40 Z" fill="#C47A5D"/>
+</svg>`,
+  youtube: `
+<svg width="380" height="380" viewBox="0 0 200 200" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <rect x="22" y="42" width="156" height="108" rx="18" stroke="#F7F3EC" stroke-width="6" fill="rgba(247,243,236,0.10)"/>
+  <path d="M86 70 L86 122 L128 96 Z" fill="#C47A5D"/>
+  <rect x="66" y="164" width="68" height="9" rx="4.5" fill="#F7F3EC" opacity="0.7"/>
+</svg>`,
+  game: `
+<svg width="380" height="380" viewBox="0 0 200 200" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <path d="M52 92 Q52 66 82 66 L118 66 Q148 66 148 92 L154 132 Q157 152 139 152 Q126 152 120 140 L117 132 Q113 123 100 123 Q87 123 83 132 L80 140 Q74 152 61 152 Q43 152 46 132 Z"
+    stroke="#F7F3EC" stroke-width="6" fill="rgba(247,243,236,0.10)" stroke-linejoin="round"/>
+  <line x1="71" y1="94" x2="71" y2="114" stroke="#F7F3EC" stroke-width="6" stroke-linecap="round"/>
+  <line x1="61" y1="104" x2="81" y2="104" stroke="#F7F3EC" stroke-width="6" stroke-linecap="round"/>
+  <circle cx="127" cy="96" r="6" fill="#F7F3EC"/>
+  <circle cx="143" cy="110" r="6" fill="#F7F3EC"/>
+  <circle cx="160" cy="42" r="24" fill="#C47A5D"/>
+  <text x="160" y="51" font-size="26" font-weight="700" fill="#F7F3EC" text-anchor="middle" font-family="Brand, sans-serif">?</text>
+</svg>`,
+  sns: `
+<svg width="380" height="380" viewBox="0 0 200 200" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <rect x="34" y="34" width="132" height="132" rx="20" stroke="#F7F3EC" stroke-width="6" fill="rgba(247,243,236,0.10)"/>
+  <circle cx="70" cy="72" r="12" fill="#F7F3EC"/>
+  <path d="M44 146 L86 100 L112 126 L136 96 L156 146 Z" fill="#F7F3EC" opacity="0.5"/>
+  <path d="M160 54 C160 44 150 39 145 47 C140 39 130 44 130 54 C130 67 145 77 145 77 C145 77 160 67 160 54 Z" fill="#C47A5D"/>
+</svg>`,
+};
+
 function buildHtml(slides, coverPhotoPath, topicDir) {
   const slideDivs = [];
   for (let n = 1; n <= 6; n++) {
@@ -148,11 +194,13 @@ function buildHtml(slides, coverPhotoPath, topicDir) {
   <div class="brand-mark light">AI 시대 자녀 대화법</div>
 </div>`);
     } else if (isArtCover) {
+      const icon = ICON_SVGS[getCategory(topicDir)] || '';
       slideDivs.push(`
 <div class="slide artcover" id="slide${n}" style="background: ${buildArtCoverStyle(topicDir)};">
   <div class="page-tag light">${String(n).padStart(2, '0')} / 06</div>
   <div class="grain"></div>
   <div class="photo-overlay"></div>
+  <div class="art-illustration">${icon}</div>
   <div class="photo-content">${inner}</div>
   <div class="brand-mark light">AI 시대 자녀 대화법</div>
 </div>`);
@@ -205,6 +253,7 @@ function buildHtml(slides, coverPhotoPath, topicDir) {
   /* 표지(사진 없을 때): 브랜드톤 그라디언트 + 그레인으로 만든 자체 제작 무드 배경 */
   .slide.artcover { color: #FFFFFF; }
   .grain { position: absolute; inset: 0; opacity: 0.05; mix-blend-mode: overlay; background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2' stitchTiles='stitch'/></filter><rect width='100%25' height='100%25' filter='url(%23n)'/></svg>"); }
+  .art-illustration { position: absolute; top: 210px; left: 0; right: 0; display: flex; justify-content: center; z-index: 2; filter: drop-shadow(0 10px 24px rgba(0,0,0,0.28)); }
 </style>
 </head>
 <body>
