@@ -103,15 +103,36 @@ function findCoverPhoto(folder) {
   return null;
 }
 
-function buildHtml(slides, coverPhotoPath) {
+// 실제 사진 파일이 없을 때 쓰는 표지 배경: 브랜드 톤 그라디언트 + 흐릿한 빛망울 + 그레인.
+// 외부 스톡 이미지 없이 "사진 느낌" 무드를 내기 위한 자체 제작(CSS/SVG) 대체.
+function hashSeed(str) {
+  let h = 0;
+  for (let i = 0; i < str.length; i++) h = (h * 31 + str.charCodeAt(i)) >>> 0;
+  return h;
+}
+
+function buildArtCoverStyle(topicDir) {
+  const seed = hashSeed(topicDir);
+  const blobX = 55 + (seed % 30); // 55~84%
+  const blobY = 15 + ((seed >> 4) % 25); // 15~39%
+  const blob2X = 10 + ((seed >> 8) % 25);
+  const blob2Y = 55 + ((seed >> 12) % 30);
+  return `
+    radial-gradient(circle at ${blobX}% ${blobY}%, rgba(196,122,93,0.55) 0%, rgba(196,122,93,0) 40%),
+    radial-gradient(circle at ${blob2X}% ${blob2Y}%, rgba(160,180,168,0.30) 0%, rgba(160,180,168,0) 45%),
+    linear-gradient(160deg, #4a6b52 0%, #3A5244 55%, #1E2B23 100%)`;
+}
+
+function buildHtml(slides, coverPhotoPath, topicDir) {
   const slideDivs = [];
   for (let n = 1; n <= 6; n++) {
-    const isCoverPhoto = n === 1 && coverPhotoPath;
-    const isGreen = (n === 1 && !coverPhotoPath) || n === 6;
+    const isCoverPhoto = n === 1 && !!coverPhotoPath;
+    const isArtCover = n === 1 && !coverPhotoPath;
+    const isGreen = n === 6;
     const label = LABELS[n];
     const body = slides[n] || '';
     let inner = '';
-    if (isCoverPhoto || isGreen) {
+    if (isCoverPhoto || isArtCover || isGreen) {
       const hookText = body.split('\n').filter((l) => l.trim()).map((l) => renderInline(l)).join('<br>');
       inner = `<div class="hook">${hookText}</div>`;
     } else {
@@ -122,6 +143,15 @@ function buildHtml(slides, coverPhotoPath) {
       slideDivs.push(`
 <div class="slide photo" id="slide${n}" style="background-image:url('file://${coverPhotoPath}')">
   <div class="page-tag light">${String(n).padStart(2, '0')} / 06</div>
+  <div class="photo-overlay"></div>
+  <div class="photo-content">${inner}</div>
+  <div class="brand-mark light">AI 시대 자녀 대화법</div>
+</div>`);
+    } else if (isArtCover) {
+      slideDivs.push(`
+<div class="slide artcover" id="slide${n}" style="background: ${buildArtCoverStyle(topicDir)};">
+  <div class="page-tag light">${String(n).padStart(2, '0')} / 06</div>
+  <div class="grain"></div>
   <div class="photo-overlay"></div>
   <div class="photo-content">${inner}</div>
   <div class="brand-mark light">AI 시대 자녀 대화법</div>
@@ -172,6 +202,9 @@ function buildHtml(slides, coverPhotoPath) {
   .photo .hook .highlight { background: #C47A5D; }
   .page-tag.light { color: #FFFFFF; opacity: 0.9; z-index: 3; }
   .brand-mark.light { color: #FFFFFF; opacity: 0.9; z-index: 3; }
+  /* 표지(사진 없을 때): 브랜드톤 그라디언트 + 그레인으로 만든 자체 제작 무드 배경 */
+  .slide.artcover { color: #FFFFFF; }
+  .grain { position: absolute; inset: 0; opacity: 0.05; mix-blend-mode: overlay; background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2' stitchTiles='stitch'/></filter><rect width='100%25' height='100%25' filter='url(%23n)'/></svg>"); }
 </style>
 </head>
 <body>
@@ -201,7 +234,7 @@ async function main() {
   const folder = path.join(REPO_ROOT, topicDir);
   const { slides, title } = parseScript(path.join(folder, 'script.md'));
   const coverPhotoPath = findCoverPhoto(folder);
-  const html = buildHtml(slides, coverPhotoPath);
+  const html = buildHtml(slides, coverPhotoPath, topicDir);
   const htmlPath = path.join(folder, '_render.html');
   fs.writeFileSync(htmlPath, html, 'utf-8');
 
