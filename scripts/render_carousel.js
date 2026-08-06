@@ -64,6 +64,19 @@ function escapeHtml(s) {
   return s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
 }
 
+// script.md에서 ==강조할 문장==으로 감싼 부분을 진한 박스 하이라이트 <span>으로 변환
+function renderInline(line) {
+  return line
+    .split(/(==[^=]+==)/g)
+    .map((part) => {
+      if (part.startsWith('==') && part.endsWith('=='))  {
+        return `<span class="highlight">${escapeHtml(part.slice(2, -2))}</span>`;
+      }
+      return escapeHtml(part);
+    })
+    .join('');
+}
+
 // 슬라이드 본문을 줄 단위로 훑어서 인용문("...")/화살표(→...)/일반 문단으로 나눠 HTML 생성
 function renderBodyHtml(body) {
   const lines = body.split('\n');
@@ -72,30 +85,49 @@ function renderBodyHtml(body) {
     const line = raw.trim();
     if (line === '') continue;
     if (line.startsWith('"') || line.startsWith('“')) {
-      html += `<div class="quote-box"><div class="quote">${escapeHtml(line)}</div></div>`;
+      html += `<div class="quote-box"><div class="quote">${renderInline(line)}</div></div>`;
     } else if (line.startsWith('→')) {
-      html += `<div class="note">${escapeHtml(line)}</div>`;
+      html += `<div class="note">${renderInline(line)}</div>`;
     } else {
-      html += `<div class="body-text">${escapeHtml(line)}</div>`;
+      html += `<div class="body-text">${renderInline(line)}</div>`;
     }
   }
   return html;
 }
 
-function buildHtml(slides) {
+function findCoverPhoto(folder) {
+  for (const name of ['cover.jpg', 'cover.jpeg', 'cover.png']) {
+    const p = path.join(folder, name);
+    if (fs.existsSync(p)) return p;
+  }
+  return null;
+}
+
+function buildHtml(slides, coverPhotoPath) {
   const slideDivs = [];
   for (let n = 1; n <= 6; n++) {
-    const isGreen = n === 1 || n === 6;
+    const isCoverPhoto = n === 1 && coverPhotoPath;
+    const isGreen = (n === 1 && !coverPhotoPath) || n === 6;
     const label = LABELS[n];
     const body = slides[n] || '';
     let inner = '';
-    if (isGreen) {
-      const hookText = body.split('\n').filter((l) => l.trim()).map(escapeHtml).join('<br>');
+    if (isCoverPhoto || isGreen) {
+      const hookText = body.split('\n').filter((l) => l.trim()).map((l) => renderInline(l)).join('<br>');
       inner = `<div class="hook">${hookText}</div>`;
     } else {
       inner = renderBodyHtml(body);
     }
-    slideDivs.push(`
+
+    if (isCoverPhoto) {
+      slideDivs.push(`
+<div class="slide photo" id="slide${n}" style="background-image:url('file://${coverPhotoPath}')">
+  <div class="page-tag light">${String(n).padStart(2, '0')} / 06</div>
+  <div class="photo-overlay"></div>
+  <div class="photo-content">${inner}</div>
+  <div class="brand-mark light">AI 시대 자녀 대화법</div>
+</div>`);
+    } else {
+      slideDivs.push(`
 <div class="slide ${isGreen ? 'green' : 'cream'}" id="slide${n}">
   <div class="page-tag">${String(n).padStart(2, '0')} / 06</div>
   <div class="content">
@@ -104,6 +136,7 @@ function buildHtml(slides) {
   </div>
   ${isGreen ? '<div class="brand-mark">AI 시대 자녀 대화법</div>' : ''}
 </div>`);
+    }
   }
 
   return `<!DOCTYPE html>
@@ -130,6 +163,15 @@ function buildHtml(slides) {
   .brand-mark { position: absolute; bottom: 56px; left: 90px; font-size: 26px; font-weight: 700; opacity: 0.8; }
   .cream .brand-mark { color: #6E8074; }
   .green .brand-mark { color: #F7F3EC; }
+  .highlight { background: #C47A5D; color: #F7F3EC; padding: 3px 10px; border-radius: 6px; box-decoration-break: clone; -webkit-box-decoration-break: clone; }
+  /* 표지: 사진 배경 + 하단 그라데이션 오버레이 + 헤드라인 */
+  .slide.photo { background-color: #222; background-size: cover; background-position: center; color: #FFFFFF; }
+  .photo-overlay { position: absolute; inset: 0; background: linear-gradient(180deg, rgba(20,24,20,0.10) 0%, rgba(20,24,20,0.25) 42%, rgba(20,24,20,0.88) 100%); }
+  .photo-content { position: absolute; left: 0; right: 0; bottom: 170px; padding: 0 90px; z-index: 2; }
+  .photo .hook { font-size: 58px; font-weight: 700; line-height: 1.5; letter-spacing: -1px; color: #FFFFFF; text-shadow: 0 2px 16px rgba(0,0,0,0.35); }
+  .photo .hook .highlight { background: #C47A5D; }
+  .page-tag.light { color: #FFFFFF; opacity: 0.9; z-index: 3; }
+  .brand-mark.light { color: #FFFFFF; opacity: 0.9; z-index: 3; }
 </style>
 </head>
 <body>
@@ -158,7 +200,8 @@ async function main() {
 
   const folder = path.join(REPO_ROOT, topicDir);
   const { slides, title } = parseScript(path.join(folder, 'script.md'));
-  const html = buildHtml(slides);
+  const coverPhotoPath = findCoverPhoto(folder);
+  const html = buildHtml(slides, coverPhotoPath);
   const htmlPath = path.join(folder, '_render.html');
   fs.writeFileSync(htmlPath, html, 'utf-8');
 
