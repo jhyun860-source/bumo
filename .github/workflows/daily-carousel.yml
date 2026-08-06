@@ -21,6 +21,12 @@ jobs:
           sudo apt-get install -y fonts-nanum
           npm install --no-save --no-package-lock puppeteer
 
+      - name: Fetch cover photo from Topview (optional)
+        env:
+          TOPVIEW_API_KEY: ${{ secrets.TOPVIEW_API_KEY }}
+          TOPVIEW_UID: ${{ secrets.TOPVIEW_UID }}
+        run: node scripts/fetch_cover_photo.js
+
       - name: Render carousel
         id: render
         run: |
