@@ -113,14 +113,16 @@ function hashSeed(str) {
 
 function buildArtCoverStyle(topicDir) {
   const seed = hashSeed(topicDir);
-  const blobX = 55 + (seed % 30); // 55~84%
-  const blobY = 15 + ((seed >> 4) % 25); // 15~39%
-  const blob2X = 10 + ((seed >> 8) % 25);
-  const blob2Y = 55 + ((seed >> 12) % 30);
+  const glowX = 58 + (seed % 26); // 58~83%
+  const glowY = 16 + ((seed >> 4) % 22); // 16~37%
+  const rimX = 10 + ((seed >> 8) % 22);
+  const rimY = 58 + ((seed >> 12) % 26);
+  // 시네마틱 컬러그레이딩 느낌: 따뜻한 앰버 스팟라이트 + 차가운 세이지 림라이트 +
+  // 가장자리가 어두워지는 비네트 베이스. 단순 톤 블렌딩보다 대비/채도를 올려 고급스럽게.
   return `
-    radial-gradient(circle at ${blobX}% ${blobY}%, rgba(196,122,93,0.55) 0%, rgba(196,122,93,0) 40%),
-    radial-gradient(circle at ${blob2X}% ${blob2Y}%, rgba(160,180,168,0.30) 0%, rgba(160,180,168,0) 45%),
-    linear-gradient(160deg, #4a6b52 0%, #3A5244 55%, #1E2B23 100%)`;
+    radial-gradient(circle at ${glowX}% ${glowY}%, rgba(224,138,94,0.68) 0%, rgba(224,138,94,0.22) 20%, rgba(224,138,94,0) 44%),
+    radial-gradient(circle at ${rimX}% ${rimY}%, rgba(122,150,131,0.30) 0%, rgba(122,150,131,0) 42%),
+    radial-gradient(ellipse at 50% 36%, #33493C 0%, #1A2B21 55%, #0C1712 100%)`;
 }
 
 // 주제 폴더 번호로 4개 주차 카테고리(챗봇/유튜브/게임/SNS)를 판별해
@@ -321,7 +323,7 @@ function buildHtml(slides, coverPhotoPath, topicDir) {
   .highlight { background: #C47A5D; color: #F7F3EC; padding: 3px 10px; border-radius: 6px; box-decoration-break: clone; -webkit-box-decoration-break: clone; }
   /* 표지: 사진 배경 + 하단 그라데이션 오버레이 + 헤드라인 */
   .slide.photo { background-color: #222; background-size: cover; background-position: center; color: #FFFFFF; }
-  .photo-overlay { position: absolute; inset: 0; background: linear-gradient(180deg, rgba(20,24,20,0.10) 0%, rgba(20,24,20,0.25) 42%, rgba(20,24,20,0.88) 100%); }
+  .photo-overlay { position: absolute; inset: 0; background: linear-gradient(180deg, rgba(9,17,13,0.08) 0%, rgba(9,17,13,0.28) 44%, rgba(9,17,13,0.92) 100%); }
   .photo-content { position: absolute; left: 0; right: 0; bottom: 170px; padding: 0 90px; z-index: 2; }
   .photo .hook { font-size: 58px; font-weight: 700; line-height: 1.5; letter-spacing: -1px; color: #FFFFFF; text-shadow: 0 2px 16px rgba(0,0,0,0.35); }
   .photo .hook .highlight { background: #C47A5D; }
